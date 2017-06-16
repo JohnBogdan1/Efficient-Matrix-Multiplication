@@ -1,0 +1,44 @@
+Nume: Ion Bogdan-Ionut
+Grupa: 332CB
+
+Timpul obtinut pe rularea celor 8 teste este in medie 110 secunde, dupa 
+mai multe rulari pe coada hp-sl.q. Ca si imbunatatiri aduse algoritmului initial, 
+se pot enumera folosirea pointerilor pentru accesul la memorie atunci cand se 
+vrea o valoare de la un anumit index din matrice si folosirea registrilor pentru 
+constantele din loop-uri. De asemenea, matricile sunt liniarizate, observandu-se o mare 
+diferenta de performanta in acest sens. Am observat ca se consuma undeva la 20s 
+pe citire & scriere din/in fisiere in total pe cele 8 teste, ceea ce este destul 
+de considerabil. Am optimizat citirea, folosind mmap pentru mapare de fisiere 
+in memoria virtuala, fiind foarte rapid la citire. De asemenea, in acest sens 
+am implementat parsarea unei valori double din fisier pentru a nu folosi 
+functii din biblioteci, care fac operatii suplimentare.
+
+Ca si flag-uri de optimizare am folosit: (observand ca accentul la inmultirea de 
+matrici se pune foarte mult pe loops)
+
+-ftree-vectorize: pentru vectorizarea loop-urilor. Am observat ca in cazul 
+inmultirii de matrici, se fac multe operatii asemenea de adunare/inmultire. 
+Astfel, vectorizarea proceseaza mai multe operatii de acelasi tip simultan, 
+aducand eficienta.
+
+-funroll-loops: acesta este un flag eficient pentru loop-urile ale caror numar 
+de iteratii pot fi determinate la compilare sau la intrarea in loop. In cazul 
+nostru, stim cate operatii vor fi executate de fiecare data, astfel putandu-se 
+realiza mai multe operatii intr-o iteratie(chunk-uri).
+
+Ambele flag-uri sunt din -O (-O1).
+
+Concluzii dupa rulari: am rulat pe 3 cozi, toate cele 8 teste, iar timpii obtinuti:
+ - campus-haswell.q: 1m:34s
+ - hp-sl.q: 1m:46s
+ - ibm-nehalem.q: 2m:7s
+Se observa diferenta de performanta intre arhitecturi.
+
+Pentru generarea graficului am folosit comanda:
+gnuplot -persist -e "set xlabel 'test(nr. test)'; set ylabel 'time (sec)'; plot 'executions.out' using 1:2 title 'campus-haswell.q' with lines, 
+'executions.out' using 1:3 title 'hp-sl.q' with lines, 'executions.out' using 1:4 title 'ibm-nehalem.q' with lines"
+
+Graficul ilustreaza performanta celor 3 cozi pe ultimele 4 teste(din tema2.cfg). 
+Se observa performanta foarte scazuta a cozii ibm-nehalem.q . Am atasat si fisierul 
+cu datele masurate: executions.out, pe langa grafic.
+
